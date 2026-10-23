@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | K10 Psychological Distress Assessment</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item active" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>Standardized self-report questionnaire</small>
+            <h2 id="assessment-heading">K10 Psychological Distress Assessment</h2>
+          </div>
+          <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+        </header>
+
+        <section class="content-wrap">
+          <p>Instructions: Please answer the following questions based on how you have felt during the last 30 days. Select one response for every question.</p>
+          <p class="muted">The 10 K10 questions and response options stay fixed. Your AI-chat concern is shown only as context; it does not change the questions or score.</p>
+          <p id="k10-concern" class="info-box hidden"></p>
+          <form id="k10-form" class="k10-form"></form>
+          <button id="k10-submit" type="submit" form="k10-form" class="primary-btn" disabled>Calculate K10 score</button>
+
+          <div id="k10-result-panel" class="result-panel hidden">
+            <h3>K10 result</h3>
+            <div class="result-grid">
+              <span id="k10-score" class="result-badge"></span>
+              <span id="k10-comparison" class="result-badge"></span>
+              <span id="k10-interpretation" class="muted"></span>
+            </div>
+            <div id="k10-recommendations" class="support-list"></div>
+            <h4>Optional official support</h4>
+            <div id="k10-resources" class="support-list"></div>
+            <a class="secondary-btn" href="history.html">View assessment history</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+      const form = document.getElementById('k10-form');
+      const submitButton = document.getElementById('k10-submit');
+      const storedChatResult = getResultData();
+      const concern = typeof storedChatResult?.problemType === 'string' ? storedChatResult.problemType.trim() : '';
+      if (concern) {
+        const concernNode = document.getElementById('k10-concern');
+        concernNode.textContent = `Concern noted in your recent AI chat: ${concern}. This context does not alter the K10 items or scoring.`;
+        concernNode.classList.remove('hidden');
+      }
+      const k10ResultPanel = document.getElementById('k10-result-panel');
+      const k10Score = document.getElementById('k10-score');
+      const k10Comparison = document.getElementById('k10-comparison');
+      const k10Interpretation = document.getElementById('k10-interpretation');
+      const k10Recommendations = document.getElementById('k10-recommendations');
+      const k10Resources = document.getElementById('k10-resources');
+      let questions = [];
+      let options = [];
+
+      async function loadK10Questions() {
+        const response = await fetch('/api/assessment/k10/questions');
+        const result = await response.json();
+        if (!response.ok || !result.ok || result.questions?.length !== 10 || result.options?.length !== 5) {
+          throw new Error(result.message || 'The fixed K10 questionnaire could not be loaded.');
+        }
+        questions = result.questions;
+        options = result.options;
+        questions.forEach((question, index) => {
+          const wrapper = document.createElement('fieldset');
+          wrapper.className = 'k10-question';
+          const legend = document.createElement('legend');
+          legend.textContent = `${index + 1}. ${question}`;
+          wrapper.appendChild(legend);
+          const optionRow = document.createElement('div');
+          optionRow.className = 'option-row';
+          options.forEach((option, optionIndex) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `q${index}`;
+            input.value = String(optionIndex + 1);
+            input.required = true;
+            label.append(input, document.createTextNode(` ${option}`));
+            optionRow.appendChild(label);
+          });
+          wrapper.appendChild(optionRow);
+          form.appendChild(wrapper);
+        });
+        submitButton.disabled = false;
+      }
+
+      loadK10Questions().catch((error) => {
+        showNotice(error.message);
+        submitButton.disabled = true;
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const answers = Array.from({ length: 10 }, (_, index) => Number(formData.get(`q${index}`) || 0));
+        if (answers.some((answer) => answer < 1 || answer > 5)) {
+          showNotice('Please select one response for each of the 10 K10 questions.');
+          return;
+        }
+        submitButton.disabled = true;
+        try {
+          const response = await fetch('/api/assessment/k10', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers, concernCategory: concern || null }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'The K10 assessment could not be scored.');
+          if (result.comparisonWarning) showNotice('Your K10 score was saved, but its history comparison could not be loaded.');
+          else if (result.persistenceWarning) showNotice('Your K10 score was calculated, but history could not be saved.');
+          else if (!result.historySaved) showNotice('Your K10 score was calculated but not saved. Enable saved memory in Privacy to keep a history.');
+          k10ResultPanel.classList.remove('hidden');
+          k10Score.textContent = `K10 total: ${result.score} / 50`;
+          k10Comparison.textContent = result.comparison?.count > 1
+            ? `Change: ${result.comparison.difference > 0 ? '+' : ''}${result.comparison.difference} since previous`
+            : 'No previous saved K10 to compare';
+          k10Interpretation.textContent = result.interpretation;
+          k10Recommendations.replaceChildren();
+          (result.recommendations || []).forEach((recommendation) => {
+            const item = document.createElement('p');
+            item.className = 'support-item';
+            item.textContent = recommendation;
+            k10Recommendations.appendChild(item);
+          });
+          renderOfficialResources(k10Resources, result.supportLinks || []);
+          k10ResultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+          showNotice(error.message || 'The K10 assessment could not be completed. Please try again.');
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      function renderOfficialResources(container, resources) {
+        container.replaceChildren();
+        resources.forEach((resource) => {
+          const card = document.createElement('article');
+          card.className = 'support-item';
+          const heading = document.createElement('h4');
+          heading.textContent = resource.label;
+          const detail = document.createElement('p');
+          detail.textContent = resource.detail;
+          const nextStep = document.createElement('p');
+          nextStep.textContent = `Possible next step: ${resource.nextStep}`;
+          const link = document.createElement('a');
+          link.href = resource.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = resource.url.startsWith('tel:') ? 'Call 112' : `Open official source${resource.source ? `: ${resource.source}` : ''}`;
+          card.append(heading, detail, nextStep, link);
+          container.appendChild(card);
+        });
+        if (!container.childElementCount) container.textContent = 'No official support links are available for this result.';
+      }
+    </script>
+  </body>
+</html>

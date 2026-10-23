@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | AI Chat</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item active" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>AI Chat</small>
+            <h2>Support conversation</h2>
+          </div>
+          <div class="header-actions">
+            <button class="ghost-btn" id="new-conversation-btn" type="button">New conversation</button>
+            <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+          </div>
+        </header>
+
+        <section class="content-wrap">
+          <div id="chat-box" class="chat-box">
+            <div class="chat-message ai">Hello. I am SahayakAI. I am here to help you understand your situation and find appropriate support.</div>
+            <div class="chat-message ai">Would you like to tell me what happened?</div>
+          </div>
+
+          <div id="result-panel" class="result-panel hidden">
+            <h3>Assessment result</h3>
+            <div class="result-grid">
+              <span id="result-score" class="result-badge">Score: 0</span>
+              <span id="result-rating" class="result-badge low">Rating: LOW</span>
+              <span id="result-summary" class="muted">No assessment result yet.</span>
+            </div>
+            <div id="result-recommendations" class="support-list"></div>
+            <div id="result-links" class="support-links"></div>
+          </div>
+
+          <p class="muted">This conversation is saved only if you enabled saved memory in the dashboard privacy settings. You can turn it off there at any time.</p>
+          <form id="chat-form" class="chat-form">
+            <input id="chat-input" type="text" placeholder="Type your situation here..." />
+            <button class="primary-btn" type="submit">Send</button>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
+      const chatBox = document.getElementById('chat-box');
+      const resultPanel = document.getElementById('result-panel');
+      const resultScore = document.getElementById('result-score');
+      const resultRating = document.getElementById('result-rating');
+      const resultSummary = document.getElementById('result-summary');
+      const resultRecommendations = document.getElementById('result-recommendations');
+      const resultLinks = document.getElementById('result-links');
+      let activeConversationId = new URLSearchParams(window.location.search).get('conversation');
+
+      function updateResultCard(score, rating, summary, recommendations = [], supportLinks = [], problemType = 'Assessment') {
+        resultPanel.classList.remove('hidden');
+        resultScore.textContent = `Score: ${score || 0}`;
+        resultRating.textContent = `Rating: ${rating || 'LOW'}`;
+        resultRating.className = 'result-badge';
+        if ((rating || 'LOW').toUpperCase() === 'HIGH' || (rating || 'LOW').toUpperCase() === 'CRITICAL') {
+          resultRating.classList.add('high');
+        } else if ((rating || 'LOW').toUpperCase() === 'MODERATE') {
+          resultRating.classList.add('medium');
+        } else {
+          resultRating.classList.add('low');
+        }
+        resultSummary.textContent = `${problemType}: ${summary || 'No assessment result yet.'}`;
+
+        resultRecommendations.innerHTML = (recommendations.length ? recommendations : [
+          'Keep your safety first and speak with a trusted person.',
+          'Use available helplines and legal resources if the situation continues.'
+        ]).map((item) => `<div class="support-item">• ${item}</div>`).join('');
+
+        const officialLinks = supportLinks.length ? supportLinks : [
+          { label: 'NHAA official portal', url: 'https://nhapoa.gov.in/' },
+          { label: 'National Legal Services Authority', url: 'https://nalsa.gov.in/' }
+        ];
+        resultLinks.replaceChildren();
+        officialLinks.forEach((item) => {
+          const card = document.createElement('article');
+          card.className = 'support-item';
+          const title = document.createElement('h4');
+          title.textContent = item.label;
+          card.appendChild(title);
+          if (item.detail) {
+            const detail = document.createElement('p');
+            detail.textContent = item.detail;
+            card.appendChild(detail);
+          }
+          if (item.nextStep) {
+            const nextStep = document.createElement('p');
+            nextStep.textContent = `Possible next step: ${item.nextStep}`;
+            card.appendChild(nextStep);
+          }
+          const link = document.createElement('a');
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = item.url.startsWith('tel:') ? 'Call 112' : `Open official source${item.source ? `: ${item.source}` : ''}`;
+          card.appendChild(link);
+          resultLinks.appendChild(card);
+        });
+
+        let k10Button = document.getElementById('continue-k10-btn');
+        if (!k10Button) {
+          k10Button = document.createElement('button');
+          k10Button.id = 'continue-k10-btn';
+          k10Button.type = 'button';
+          k10Button.className = 'primary-btn';
+          k10Button.textContent = 'Continue to fixed K10 assessment';
+          k10Button.addEventListener('click', () => window.location.href = 'k10.html');
+          resultPanel.appendChild(k10Button);
+        }
+
+        k10Button.style.display = 'inline-flex';
+
+        setResultData({ score: Number(score || 0), rating: (rating || 'LOW').toUpperCase(), summary: summary || '', recommendations, supportLinks, problemType });
+      }
+
+      function showScreeningHandoff(result) {
+        setResultData({
+          chatbotConversation: result.chatbotConversation || [],
+          conversationText: result.summary || '',
+          chatRating: result.rating || result.risk || 'LOW',
+          chatScore: result.score || 0,
+          indicators: result.indicators || [],
+          problemType: result.problemType || 'Support assessment',
+          contextQuestions: result.contextQuestions || [],
+          screeningQuestions: result.screeningQuestions || [],
+          recommendations: result.recommendations || [],
+          supportLinks: result.supportLinks || [],
+          legalFrameworks: result.legalFrameworks || [],
+          conversationId: activeConversationId,
+        });
+        window.location.assign('/k10.html');
+      }
+
+      function appendMessage(role, content) {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-message ${role === 'user' ? 'user' : 'ai'}`;
+        bubble.textContent = content;
+        chatBox.appendChild(bubble);
+      }
+
+      async function restoreConversation() {
+        if (!activeConversationId) return;
+        chatBox.replaceChildren();
+        const response = await fetch(`/api/conversations/${encodeURIComponent(activeConversationId)}/messages`);
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          activeConversationId = null;
+          history.replaceState(null, '', '/chat.html');
+          appendMessage('ai', result.message || 'This conversation could not be loaded.');
+          return;
+        }
+        (result.data || []).forEach((message) => appendMessage(message.role, message.content));
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      document.getElementById('new-conversation-btn').addEventListener('click', () => {
+        activeConversationId = null;
+        history.replaceState(null, '', '/chat.html');
+        chatBox.replaceChildren();
+        appendMessage('ai', 'Hello. I am SahayakAI. I am here to help you understand your situation and find appropriate support.');
+        appendMessage('ai', 'Would you like to tell me what happened?');
+        resultPanel.classList.add('hidden');
+      });
+
+      chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        resultPanel.classList.add('hidden');
+        const userBubble = document.createElement('div');
+        userBubble.className = 'chat-message user';
+        userBubble.textContent = text;
+        chatBox.appendChild(userBubble);
+        chatInput.value = '';
+
+        const sendButton = chatForm.querySelector('button[type="submit"]');
+        sendButton.disabled = true;
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: text,
+              language: getSelectedLanguage(),
+              category: getSelectedCategory(),
+              ...(activeConversationId ? { conversationId: activeConversationId } : {}),
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Chat assessment could not be completed.');
+          appendMessage('assistant', result.response);
+          if (result.conversationId) {
+            activeConversationId = result.conversationId;
+            history.replaceState(null, '', `/chat.html?conversation=${encodeURIComponent(activeConversationId)}`);
+          }
+          if (result.persistenceWarning) showNotice('Your reply is available, but this message could not be saved.');
+
+          if (result.needsMoreQuestions === true || result.problemType === 'Under assessment') return;
+          if (result.needsMoreQuestions !== false) return;
+          if (result.awaitingScreening === true) {
+            showScreeningHandoff(result);
+            return;
+          }
+
+          updateResultCard(
+            result.score || 0,
+            result.rating || result.risk || 'LOW',
+            result.summary || result.response,
+            result.recommendations || [],
+            result.supportLinks || [],
+            result.problemType || 'Assessment'
+          );
+        } catch (error) {
+          showNotice(error.message || 'Chat assessment could not be completed. Please try again.');
+        } finally {
+          sendButton.disabled = false;
+        }
+      });
+
+      restoreConversation().catch((error) => showNotice(error.message || 'Conversation could not be restored.'));
+    </script>
+  </body>
+</html>

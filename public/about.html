@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | About</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item active" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>About SahayakAI</small>
+            <h2>AI-assisted first-contact support</h2>
+          </div>
+          <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+        </header>
+
+        <section class="content-wrap">
+          <div class="info-box">
+            <p>SahayakAI is a first-contact support prototype designed to help users understand their situation, evaluate safety, review emotional distress, access legal information, and connect with support resources.</p>
+            <p>It does not diagnose mental illness, determine guilt, or replace official legal or medical processes.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+
+        <nav class="side-nav">
+          <a class="nav-item active" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>Welcome</small>
+            <h2 id="dashboard-user-name" data-no-translate>User</h2>
+          </div>
+
+          <div class="header-actions">
+            <label class="language-inline">
+              Language
+              <select id="language-select">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="pa">Punjabi</option>
+                <option value="bn">Bengali</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="or">Odia</option>
+                <option value="ur">Urdu</option>
+              </select>
+            </label>
+            <button class="ghost-btn" onclick="window.location.href='category.html'">Profile</button>
+            <button class="secondary-btn" id="logout-btn">Logout</button>
+          </div>
+        </header>
+
+        <section class="content-wrap">
+          <div class="page-bar">
+            <div>
+              <small class="eyebrow">Category</small>
+              <h3 id="dashboard-category">SC</h3>
+            </div>
+            <a class="primary-btn" href="category.html">Change category</a>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card"><span>🧠 Psychological assessment</span><strong>Pending</strong></div>
+            <div class="summary-card"><span>⚖ Legal guidance</span><strong>Ready</strong></div>
+            <div class="summary-card"><span>🎤 Voice assessment</span><strong>Not started</strong></div>
+            <div class="summary-card"><span>📞 Emergency help</span><strong>Available</strong></div>
+          </div>
+
+          <div class="privacy-box">
+            <h3>Your privacy matters.</h3>
+            <p>Your information may contain sensitive personal information. Saved memory is optional. If enabled, your conversations and assessments are stored in your private account so you can review progress and resume chats.</p>
+            <label class="remember-option">
+              <input type="checkbox" id="memory-consent" />
+              <span>Enable saved conversation memory and progress history</span>
+            </label>
+            <p id="memory-status" class="muted">Checking account settings…</p>
+            <label for="user-background">Background you want the assistant to remember (optional)</label>
+            <textarea id="user-background" rows="3" maxlength="4000" placeholder="Add or correct information you have chosen to share."></textarea>
+            <label for="saved-memory">Remembered notes (one per line; edit or remove any note)</label>
+            <textarea id="saved-memory" rows="5" maxlength="10000" placeholder="No saved notes yet."></textarea>
+            <div class="voice-controls">
+              <button class="secondary-btn" id="save-background-btn" type="button">Save background</button>
+              <button class="secondary-btn" id="save-memory-btn" type="button">Save memory notes</button>
+              <button class="secondary-btn" id="export-data-btn" type="button">Export my data</button>
+              <button class="ghost-btn" id="delete-history-btn" type="button">Delete saved history</button>
+            </div>
+          </div>
+
+          <section class="progress-section">
+            <h3>Your progress</h3>
+            <form id="mood-form" class="info-box">
+              <h4>Record your mood (optional)</h4>
+              <label for="mood-score">How would you rate your mood today? 0 = very low, 100 = very positive</label>
+              <input id="mood-score" type="range" min="0" max="100" value="50" />
+              <output id="mood-score-output">50 / 100</output>
+              <label for="mood-note">Optional note</label>
+              <textarea id="mood-note" rows="2" maxlength="1000" placeholder="Only share what you want saved."></textarea>
+              <button class="secondary-btn" type="submit">Save today’s mood</button>
+              <p class="muted">This is a self-reported check-in, not a clinical measure.</p>
+            </form>
+            <p id="progress-empty" class="info-box">No saved assessment data yet. Progress summaries will appear after you opt in and complete assessments.</p>
+            <div class="summary-grid">
+              <div class="summary-card"><span>Overall trend</span><strong id="progress-trend">Insufficient data</strong></div>
+              <div class="summary-card"><span>Weekly summary</span><strong id="weekly-summary">Insufficient data</strong></div>
+              <div class="summary-card"><span>Monthly summary</span><strong id="monthly-summary">Insufficient data</strong></div>
+            </div>
+            <div class="info-box">
+              <h4>Possible contributing factors</h4>
+              <p id="possible-factor">There is not enough information to identify a possible contributing factor.</p>
+              <div id="factor-feedback" class="voice-controls"></div>
+            </div>
+            <div class="summary-grid progress-charts">
+              <div class="info-box"><h4>Reported stress screening</h4><canvas id="stress-chart" aria-label="Recorded stress assessments"></canvas><p id="stress-empty" class="muted">No comparable scores yet.</p></div>
+              <div class="info-box"><h4>Reported mood</h4><canvas id="mood-chart" aria-label="User-reported mood scores"></canvas><p id="mood-empty" class="muted">No mood scores have been recorded.</p></div>
+            </div>
+            <div class="info-box"><h4>Tracked concerns</h4><div id="concern-list" class="support-list"><p class="muted">No saved concerns.</p></div></div>
+            <div class="info-box"><h4>Recent recommendations</h4><div id="recommendation-list" class="support-list"><p class="muted">No saved recommendations.</p></div></div>
+            <div class="info-box"><h4>Saved conversations</h4><div id="conversation-list" class="support-list"><p class="muted">No saved conversations.</p></div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script src="/vendor/chart.js/chart.umd.js"></script>
+    <script>
+      const user = requireAuth();
+      if (!user) throw new Error('User required');
+      renderUserInfo();
+      renderCategoryChip();
+      const languageSelect = document.getElementById('language-select');
+      languageSelect.value = getSelectedLanguage();
+      languageSelect.addEventListener('change', (event) => {
+        setSelectedLanguage(event.target.value);
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', logoutUser);
+      const categoryNode = document.getElementById('dashboard-category');
+      categoryNode.textContent = getSelectedCategory();
+
+      const memoryCheckbox = document.getElementById('memory-consent');
+      const memoryStatus = document.getElementById('memory-status');
+      const backgroundInput = document.getElementById('user-background');
+      const memoryInput = document.getElementById('saved-memory');
+      const moodForm = document.getElementById('mood-form');
+      const moodRange = document.getElementById('mood-score');
+      moodRange.addEventListener('input', () => {
+        document.getElementById('mood-score-output').textContent = `${moodRange.value} / 100`;
+      });
+      const progressEmpty = document.getElementById('progress-empty');
+      let stressChart;
+      let moodChart;
+
+      async function loadProgressDashboard() {
+        const health = await fetch('/api/health').then((response) => response.json());
+        if (health.mode !== 'supabase') {
+          memoryCheckbox.disabled = true;
+          document.getElementById('save-background-btn').disabled = true;
+          document.getElementById('save-memory-btn').disabled = true;
+          document.getElementById('export-data-btn').disabled = true;
+          document.getElementById('delete-history-btn').disabled = true;
+          moodForm.querySelector('button[type="submit"]').disabled = true;
+          moodRange.disabled = true;
+          document.getElementById('mood-note').disabled = true;
+          memoryStatus.textContent = 'Cloud history is not configured. The app is currently using demo mode; saved progress is unavailable.';
+          return;
+        }
+
+        const profileResponse = await fetch('/api/user/profile');
+        const profileResult = await profileResponse.json();
+        if (!profileResponse.ok || !profileResult.ok) throw new Error(profileResult.message || 'Unable to load privacy settings.');
+        memoryCheckbox.checked = profileResult.user.memory_consent === true;
+        memoryStatus.textContent = memoryCheckbox.checked
+          ? 'Memory is enabled. Your saved data is private to your account.'
+          : 'Memory is off. Chats and assessments will not be saved.';
+        backgroundInput.value = profileResult.user.background || '';
+        memoryInput.disabled = !memoryCheckbox.checked;
+        document.getElementById('save-memory-btn').disabled = !memoryCheckbox.checked;
+        document.getElementById('save-background-btn').disabled = !memoryCheckbox.checked;
+        moodForm.querySelector('button[type="submit"]').disabled = !memoryCheckbox.checked;
+        moodRange.disabled = !memoryCheckbox.checked;
+        document.getElementById('mood-note').disabled = !memoryCheckbox.checked;
+        if (memoryCheckbox.checked) {
+          const memoryResponse = await fetch('/api/user/memory');
+          const memoryResult = await memoryResponse.json();
+          if (!memoryResponse.ok || !memoryResult.ok) throw new Error(memoryResult.message || 'Unable to load saved memory.');
+          memoryInput.value = (memoryResult.memory?.confirmed_facts || []).join('\n');
+        } else {
+          memoryInput.value = '';
+          document.getElementById('recommendation-list').textContent = 'Enable saved memory to view persisted recommendations.';
+          document.getElementById('conversation-list').textContent = 'Enable saved memory to view saved conversations.';
+        }
+
+        const [progressResponse, recommendationsResponse, conversationsResponse] = await Promise.all([
+          fetch('/api/user/progress'),
+          fetch('/api/user/recommendations'),
+          fetch('/api/conversations'),
+        ]);
+        const [progress, recommendations, conversations] = await Promise.all([
+          progressResponse.json(), recommendationsResponse.json(), conversationsResponse.json(),
+        ]);
+        if (!progressResponse.ok || !progress.ok) throw new Error(progress.message || 'Unable to load progress.');
+        if (!recommendationsResponse.ok || !recommendations.ok) throw new Error(recommendations.message || 'Unable to load recommendations.');
+        if (!conversationsResponse.ok || !conversations.ok) throw new Error(conversations.message || 'Unable to load conversations.');
+        renderProgress(progress);
+        renderRecommendations(recommendations.data || []);
+        renderConversations(conversations.data || []);
+      }
+
+      function renderProgress(progress) {
+        const assessments = progress.assessments || [];
+        progressEmpty.classList.toggle('hidden', assessments.length > 0);
+        document.getElementById('progress-trend').textContent = progress.trend?.trend || 'Insufficient data';
+        document.getElementById('weekly-summary').textContent = progress.weeklySummary || 'Insufficient data';
+        document.getElementById('monthly-summary').textContent = progress.monthlySummary || 'Insufficient data';
+        const factor = progress.possibleFactor;
+        document.getElementById('possible-factor').textContent = factor?.message
+          || 'There is not enough information to identify a possible contributing factor.';
+        const factorFeedback = document.getElementById('factor-feedback');
+        factorFeedback.replaceChildren();
+        if (factor?.progressId) {
+          if (factor.feedback) {
+            factorFeedback.textContent = `Your feedback: ${factor.feedback}`;
+          } else if (factor.factor) {
+            ['Accurate', 'Not accurate'].forEach((feedback) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'ghost-btn';
+              button.textContent = feedback === 'Accurate' ? 'This seems relevant' : 'This does not seem relevant';
+              button.addEventListener('click', async () => {
+                const response = await fetch('/api/user/progress/feedback', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ progressId: factor.progressId, feedback }),
+                });
+                const result = await response.json();
+                if (!response.ok || !result.ok) return showNotice(result.message || 'Feedback could not be saved.');
+                showNotice('Your feedback was saved.');
+                await loadProgressDashboard();
+              });
+              factorFeedback.appendChild(button);
+            });
+          }
+        }
+        const concerns = document.getElementById('concern-list');
+        concerns.replaceChildren();
+        (progress.concerns || []).forEach((concern) => {
+          const item = document.createElement('p');
+          item.textContent = `${concern.concern_category}: ${concern.current_status}`;
+          concerns.appendChild(item);
+        });
+        if (!concerns.childElementCount) concerns.textContent = 'No saved concerns.';
+
+        const scoreGroups = new Map();
+        assessments.filter((item) => Number.isFinite(item.stress_score)).forEach((item) => {
+          const key = `${item.assessment_type}\u0000${item.scale_definition}\u0000${item.assessment_type === 'k10_v1' ? '' : item.concern_category || ''}`;
+          const group = scoreGroups.get(key) || [];
+          group.push(item);
+          scoreGroups.set(key, group);
+        });
+        const stress = [...scoreGroups.values()].sort((a, b) => b.length - a.length)[0] || [];
+        const stressEmpty = document.getElementById('stress-empty');
+        stressEmpty.classList.toggle('hidden', stress.length > 0);
+        if (stress.length) {
+          stressChart?.destroy();
+          stressChart = new Chart(document.getElementById('stress-chart'), {
+            type: 'line',
+            data: { labels: stress.map((item) => new Date(item.assessed_at).toLocaleDateString()), datasets: [{ label: stress[0].assessment_type === 'k10_v1' ? 'K10 psychological distress (higher is more)' : 'Experimental reported impact (higher is more)', data: stress.map((item) => item.stress_score), borderColor: '#4f46e5', tension: 0.25 }] },
+            options: { responsive: true, scales: { y: { min: 0, max: 50 } } },
+          });
+        }
+        const mood = assessments.filter((item) => Number.isFinite(item.mood_score));
+        document.getElementById('mood-empty').classList.toggle('hidden', mood.length > 0);
+        if (mood.length) {
+          moodChart?.destroy();
+          moodChart = new Chart(document.getElementById('mood-chart'), {
+            type: 'line',
+            data: { labels: mood.map((item) => new Date(item.assessed_at).toLocaleDateString()), datasets: [{ label: 'User-reported mood score', data: mood.map((item) => item.mood_score), borderColor: '#0f766e', tension: 0.25 }] },
+            options: { responsive: true, scales: { y: { min: 0, max: 100 } } },
+          });
+        }
+      }
+
+      function renderRecommendations(items) {
+        const list = document.getElementById('recommendation-list');
+        list.replaceChildren();
+        items.forEach((recommendation) => {
+          const card = document.createElement('div');
+          card.className = 'support-item';
+          const text = document.createElement('p');
+          text.textContent = recommendation.recommendation_text;
+          card.appendChild(text);
+          ['Helpful', 'Not helpful', 'Not tried'].forEach((feedback) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'ghost-btn';
+            button.textContent = feedback;
+            button.disabled = recommendation.user_feedback === feedback;
+            button.addEventListener('click', async () => {
+              const response = await fetch('/api/user/recommendations/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: recommendation.id, feedback }),
+              });
+              const result = await response.json();
+              if (!response.ok || !result.ok) return showNotice(result.message || 'Feedback could not be saved.');
+              recommendation.user_feedback = feedback;
+              button.disabled = true;
+              showNotice('Thanks. Your feedback was saved.');
+            });
+            card.appendChild(button);
+          });
+          list.appendChild(card);
+        });
+        if (!items.length) list.textContent = 'No saved recommendations yet.';
+      }
+
+      function renderConversations(items) {
+        const list = document.getElementById('conversation-list');
+        list.replaceChildren();
+        items.forEach((conversation) => {
+          const link = document.createElement('a');
+          link.href = `chat.html?conversation=${encodeURIComponent(conversation.id)}`;
+          link.textContent = `${conversation.title} — ${new Date(conversation.updated_at).toLocaleDateString()}`;
+          list.appendChild(link);
+        });
+        if (!items.length) list.textContent = 'No saved conversations yet.';
+      }
+
+      memoryCheckbox.addEventListener('change', async () => {
+        if (!memoryCheckbox.checked && !window.confirm('Turning off memory permanently deletes saved conversations, assessments, recommendations, and progress for this account. Continue?')) {
+          memoryCheckbox.checked = true;
+          return;
+        }
+        const response = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ memoryConsent: memoryCheckbox.checked }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          memoryCheckbox.checked = !memoryCheckbox.checked;
+          return showNotice(result.message || 'Privacy settings could not be saved.');
+        }
+        memoryStatus.textContent = memoryCheckbox.checked
+          ? 'Memory is enabled. Your saved data is private to your account.'
+          : 'Memory is off. Saved history was deleted.';
+        memoryInput.disabled = !memoryCheckbox.checked;
+        document.getElementById('save-memory-btn').disabled = !memoryCheckbox.checked;
+        document.getElementById('save-background-btn').disabled = !memoryCheckbox.checked;
+        moodForm.querySelector('button[type="submit"]').disabled = !memoryCheckbox.checked;
+        moodRange.disabled = !memoryCheckbox.checked;
+        document.getElementById('mood-note').disabled = !memoryCheckbox.checked;
+        showNotice('Privacy setting updated.');
+        await loadProgressDashboard();
+      });
+
+      document.getElementById('save-background-btn').addEventListener('click', async () => {
+        const response = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ background: backgroundInput.value }),
+        });
+        const result = await response.json();
+        showNotice(response.ok && result.ok ? 'Background saved.' : (result.message || 'Background could not be saved.'));
+      });
+
+      document.getElementById('save-memory-btn').addEventListener('click', async () => {
+        const confirmedFacts = memoryInput.value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+        const response = await fetch('/api/user/memory', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirmedFacts }),
+        });
+        const result = await response.json();
+        showNotice(response.ok && result.ok ? 'Memory notes saved.' : (result.message || 'Memory notes could not be saved.'));
+      });
+
+      moodForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!memoryCheckbox.checked) return showNotice('Enable saved memory before recording a mood check-in.');
+        const response = await fetch('/api/user/assessments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assessmentType: 'user_reported',
+            scaleDefinition: 'User-reported mood rating 0-100; higher means the user reports a more positive mood. Not a clinical measure.',
+            moodScore: Number(moodRange.value),
+            stressScore: null,
+            observations: [document.getElementById('mood-note').value].filter(Boolean),
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) return showNotice(result.message || 'Mood check-in could not be saved.');
+        document.getElementById('mood-note').value = '';
+        showNotice('Mood check-in saved.');
+        await loadProgressDashboard();
+      });
+
+      document.getElementById('export-data-btn').addEventListener('click', async () => {
+        const response = await fetch('/api/user/export');
+        const result = await response.json();
+        if (!response.ok || !result.ok) return showNotice(result.message || 'Data export failed.');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' }));
+        link.download = 'sahayakai-data-export.json';
+        link.click();
+        URL.revokeObjectURL(link.href);
+      });
+
+      document.getElementById('delete-history-btn').addEventListener('click', async () => {
+        if (!window.confirm('Permanently delete all saved conversations, assessments, recommendations, and progress?')) return;
+        const response = await fetch('/api/user/history', { method: 'DELETE' });
+        const result = await response.json();
+        if (!response.ok || !result.ok) return showNotice(result.message || 'History could not be deleted.');
+        showNotice('Saved history deleted.');
+        await loadProgressDashboard();
+      });
+
+      loadProgressDashboard().catch((error) => {
+        memoryStatus.textContent = error.message || 'Could not load account history.';
+        showNotice(memoryStatus.textContent);
+      });
+    </script>
+  </body>
+</html>

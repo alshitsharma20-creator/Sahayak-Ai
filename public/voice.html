@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | Voice Assessment</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item active" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>Voice Assessment</small>
+            <h2>Microphone-based support intake</h2>
+          </div>
+          <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+        </header>
+
+        <section class="content-wrap">
+          <div class="voice-controls">
+            <button class="primary-btn" id="start-recording-btn">🎤 StartRecording</button>
+            <button class="secondary-btn" id="stop-recording-btn">⏹ StopRecording</button>
+            <button class="ghost-btn" id="play-recording-btn">🔊 PlayRecording</button>
+            <button class="ghost-btn" id="view-transcript-btn">📝 ViewTranscript</button>
+          </div>
+
+          <div class="voice-box">
+            <p class="muted">Listening...</p>
+            <textarea id="transcript-output" rows="8" placeholder="Your transcript appears here..."></textarea>
+          </div>
+
+          <div id="voice-result-panel" class="result-panel hidden">
+            <h3>Voice intake</h3>
+            <div class="result-grid">
+              <span id="voice-summary" class="muted">No voice assessment result yet.</span>
+            </div>
+            <div id="voice-recommendations" class="support-list"></div>
+            <div id="voice-links" class="support-links"></div>
+          </div>
+
+          <div class="voice-score-box" id="voice-score-box">Voice recordings and transcripts are not scored or clinically interpreted. For a standardized self-report screen, use the fixed K10 questionnaire; it is not a diagnosis.</div>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+      let mediaRecorder;
+      let chunks = [];
+      let transcript = '';
+      let isRecording = false;
+      let audioBlob = null;
+
+      const transcriptOutput = document.getElementById('transcript-output');
+      const voiceResultPanel = document.getElementById('voice-result-panel');
+      const voiceSummary = document.getElementById('voice-summary');
+      const voiceRecommendations = document.getElementById('voice-recommendations');
+      const voiceLinks = document.getElementById('voice-links');
+
+      function updateVoiceResult(transcriptText = '') {
+        voiceResultPanel.classList.remove('hidden');
+        voiceSummary.textContent = transcriptText
+          ? 'Your recording is available for review. This voice intake does not assess distress or determine a support-need rating.'
+          : 'No voice recording is available yet.';
+        const recommendations = [
+          'Review and edit the transcript before using it to describe your situation.',
+          'If you would like a standardized self-report screen, continue to the fixed K10 questionnaire. Its result is not a diagnosis.',
+          'If you are in immediate danger, call 112.',
+        ];
+        const supportLinks = [
+          {
+            label: 'Tele-MANAS mental-health support',
+            url: 'https://telemanas.mohfw.gov.in/',
+            detail: 'Government of India Tele-MANAS service information for mental-health support. This app does not diagnose; confirm current access and contact details on the official portal.',
+            nextStep: 'If distress is affecting daily life, consider contacting Tele-MANAS or a qualified mental-health professional.',
+            source: 'Official Government of India service',
+            sourceUrl: 'https://telemanas.mohfw.gov.in/',
+          },
+        ];
+        voiceRecommendations.replaceChildren();
+        recommendations.forEach((item) => {
+          const recommendation = document.createElement('div');
+          recommendation.className = 'support-item';
+          recommendation.textContent = `• ${item}`;
+          voiceRecommendations.appendChild(recommendation);
+        });
+        voiceLinks.replaceChildren();
+        supportLinks.forEach((item) => {
+          const card = document.createElement('article');
+          card.className = 'support-item';
+          const title = document.createElement('a');
+          title.href = item.url;
+          title.target = '_blank';
+          title.rel = 'noreferrer';
+          title.textContent = item.label;
+          const detail = document.createElement('p');
+          detail.textContent = item.detail;
+          const nextStep = document.createElement('p');
+          nextStep.textContent = item.nextStep;
+          const source = document.createElement('a');
+          source.href = item.sourceUrl;
+          source.target = '_blank';
+          source.rel = 'noreferrer';
+          source.textContent = item.source;
+          card.append(title, detail, nextStep, source);
+          voiceLinks.appendChild(card);
+        });
+        let k10Button = document.getElementById('voice-k10-btn');
+        if (!k10Button) {
+          k10Button = document.createElement('button');
+          k10Button.id = 'voice-k10-btn';
+          k10Button.type = 'button';
+          k10Button.className = 'primary-btn';
+          k10Button.textContent = 'Continue to K10';
+          k10Button.addEventListener('click', () => window.location.href = 'k10.html');
+          voiceResultPanel.appendChild(k10Button);
+        }
+        setResultData({
+          conversationText: transcriptText,
+          problemType: 'Voice intake',
+          summary: voiceSummary.textContent,
+          recommendations,
+          supportLinks,
+        });
+      }
+
+      document.getElementById('start-recording-btn').addEventListener('click', () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showNotice('Microphone access is unavailable in this browser.');
+          return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+          mediaRecorder = new MediaRecorder(stream, mimeType ? { type: mimeType } : undefined);
+          chunks = [];
+
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) chunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            audioBlob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+            stream.getTracks().forEach((track) => track.stop());
+            updateVoiceResult(transcript);
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-IN';
+            recognition.onresult = (event) => {
+              transcript = Array.from(event.results).map((result) => result[0].transcript).join(' ');
+              transcriptOutput.value = transcript;
+            };
+            recognition.start();
+          }
+
+          showNotice('Recording started. Speak naturally.');
+        }).catch(() => showNotice('Microphone permission was denied.'));
+      });
+
+      document.getElementById('stop-recording-btn').addEventListener('click', () => {
+        if (mediaRecorder && isRecording) {
+          mediaRecorder.stop();
+          isRecording = false;
+          showNotice('Recording stopped.');
+        }
+      });
+
+      document.getElementById('view-transcript-btn').addEventListener('click', () => {
+        transcriptOutput.value = transcript || 'No transcript yet.';
+      });
+
+      document.getElementById('play-recording-btn').addEventListener('click', () => {
+        if (!audioBlob) return showNotice('No recording available yet.');
+        const url = URL.createObjectURL(audioBlob);
+        const audio = new Audio(url);
+        audio.play();
+      });
+    </script>
+  </body>
+</html>

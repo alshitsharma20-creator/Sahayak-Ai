@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | Category</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="page-bg">
+    <div class="category-shell">
+      <div class="category-card">
+        <p class="eyebrow center">Select your category</p>
+        <h2>Select the category that best represents your situation.</h2>
+
+        <div class="category-grid">
+          <button class="category-option" data-category="SC">
+            <span>📘</span>
+            <strong>SC</strong>
+          </button>
+          <button class="category-option" data-category="ST">
+            <span>🌿</span>
+            <strong>ST</strong>
+          </button>
+          <button class="category-option" data-category="OBC">
+            <span>🧭</span>
+            <strong>OBC</strong>
+          </button>
+          <button class="category-option" data-category="BC">
+            <span>🏛</span>
+            <strong>BC</strong>
+          </button>
+        </div>
+
+        <div class="center-actions">
+          <a class="secondary-btn" href="dashboard.html">Continue to dashboard</a>
+          <button class="ghost-btn" id="logout-btn">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      const user = requireAuth();
+      if (!user) {
+        throw new Error('User required');
+      }
+
+      document.querySelectorAll('.category-option').forEach((button) => {
+        button.addEventListener('click', () => {
+          const category = button.dataset.category;
+          setSelectedCategory(category);
+          const current = getSavedUser();
+          current.category = category;
+          setSavedUser(current);
+          showNotice(`Category selected: ${category}`);
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 600);
+        });
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', logoutUser);
+    </script>
+  </body>
+</html>

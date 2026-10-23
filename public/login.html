@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | Login</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="page-bg auth-bg">
+    <div class="auth-shell">
+      <div class="auth-card">
+        <div class="brand-inline">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+            <small>AI-powered first-contact support</small>
+          </div>
+        </div>
+
+        <div class="tab-toggle">
+          <button class="tab-btn active" data-auth="login">Login</button>
+          <button class="tab-btn" data-auth="register">Create account</button>
+        </div>
+
+        <div class="category-section">
+          <p class="tiny-label">Category</p>
+          <div class="mini-category-grid">
+            <button type="button" class="mini-category selected" data-category="SC">SC</button>
+            <button type="button" class="mini-category" data-category="ST">ST</button>
+            <button type="button" class="mini-category" data-category="OBC">OBC</button>
+            <button type="button" class="mini-category" data-category="BC">BC</button>
+          </div>
+        </div>
+
+        <form id="login-form" class="auth-form active-form">
+          <label>
+            Email or username
+            <input type="text" name="loginId" placeholder="Enter email or demo username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+          </label>
+          <label class="remember-option">
+            <input type="checkbox" id="remember-me" />
+            <span>Remember me (email or username only)</span>
+          </label>
+          <button class="primary-btn full" type="submit">Login</button>
+        </form>
+
+        <form id="register-form" class="auth-form">
+          <label>
+            Full name
+            <input type="text" name="name" placeholder="Your full name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="Enter your email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Choose password (8 characters minimum)" autocomplete="new-password" minlength="8" required />
+          </label>
+          <button class="primary-btn full" type="submit">Create account</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      const authTabs = document.querySelectorAll('.tab-btn');
+      const authForms = document.querySelectorAll('.auth-form');
+
+      authTabs.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          const val = button.dataset.auth;
+          authTabs.forEach((btn) => btn.classList.toggle('active', btn === button));
+          authForms.forEach((form) => form.classList.toggle('active-form', form.id === `${val}-form`));
+        });
+      });
+
+      const selectedCategoryButtons = document.querySelectorAll('.mini-category');
+      let activeCategory = getSelectedCategory() || 'SC';
+
+      function syncCategoryButtons() {
+        selectedCategoryButtons.forEach((button) => {
+          button.classList.toggle('selected', button.dataset.category === activeCategory);
+        });
+        setSelectedCategory(activeCategory);
+      }
+
+      selectedCategoryButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeCategory = button.dataset.category;
+          syncCategoryButtons();
+        });
+      });
+
+      syncCategoryButtons();
+      const loginForm = document.getElementById('login-form');
+      loadRememberedUsername(loginForm);
+
+      async function requestAuth(url, payload, failureMessage) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            showNotice(result.message || failureMessage);
+            return null;
+          }
+          return result;
+        } catch (error) {
+          showNotice('The server is unavailable. Start it with: node server.js');
+          return null;
+        }
+      }
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        const data = Object.fromEntries(new FormData(event.target).entries());
+        const result = await requestAuth('/api/auth/login', data, 'Login failed');
+        submitButton.disabled = false;
+        if (!result) return;
+        saveRememberedUsername(event.target);
+        const user = { ...result.user, category: activeCategory };
+        if (user.id) setSavedUser(user);
+        setSelectedCategory(activeCategory);
+        setSelectedLanguage(getSelectedLanguage() || 'en');
+        window.location.replace('/dashboard.html');
+      });
+
+      document.getElementById('register-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        const data = Object.fromEntries(new FormData(event.target).entries());
+        const result = await requestAuth('/api/auth/register', {
+          name: data.name,
+          email: data.email,
+          loginId: data.email,
+          password: data.password,
+          category: activeCategory,
+          language: getSelectedLanguage() || 'en',
+        }, 'Registration failed');
+        submitButton.disabled = false;
+        if (!result) return;
+        if (result.requiresEmailConfirmation) {
+          showNotice('Check your email to confirm your account, then return to log in.');
+          return;
+        }
+        const user = { ...result.user, category: activeCategory };
+        setSavedUser(user);
+        setSelectedCategory(activeCategory);
+        window.location.replace('/dashboard.html');
+      });
+    </script>
+  </body>
+</html>

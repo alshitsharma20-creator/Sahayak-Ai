@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | History</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">SAHAYAKAI</div>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item active" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+          <a class="nav-item" href="about.html">ℹ About SahayakAI</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div>
+            <small>History</small>
+            <h2>My saved history</h2>
+          </div>
+          <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+        </header>
+
+        <section class="content-wrap">
+          <label for="history-search">Search saved conversations</label>
+          <input id="history-search" type="search" placeholder="Search conversation titles or messages" />
+          <h3>Conversations</h3>
+          <div id="conversation-list" class="history-list"></div>
+          <h3>K10 comparison and recommendations</h3>
+          <section id="k10-history-summary" class="info-box">
+            <p class="muted">K10 comparisons appear after comparable K10 assessments have been saved.</p>
+          </section>
+          <h4>Official mental-health support</h4>
+          <div id="k10-history-resources" class="history-list"></div>
+          <h3>K10 score timeline</h3>
+          <div id="k10-history-timeline" class="history-list"></div>
+          <h3>Other comparable reports</h3>
+          <div id="other-assessment-comparisons" class="history-list"></div>
+          <h3>Assessments</h3>
+          <div id="history-list" class="history-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="status-toast" class="toast hidden"></div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+      const assessmentList = document.getElementById('history-list');
+      const conversationList = document.getElementById('conversation-list');
+      const searchInput = document.getElementById('history-search');
+      const k10Summary = document.getElementById('k10-history-summary');
+      const k10Timeline = document.getElementById('k10-history-timeline');
+      const k10Resources = document.getElementById('k10-history-resources');
+      const otherComparisons = document.getElementById('other-assessment-comparisons');
+
+      const user = getSavedUser();
+      function renderK10Progress(progress) {
+        k10Summary.replaceChildren();
+        k10Timeline.replaceChildren();
+        k10Resources.replaceChildren();
+        otherComparisons.replaceChildren();
+        const comparison = progress.k10Comparison;
+        const entries = (progress.assessments || [])
+          .filter((item) => item.assessment_type === 'k10_v1' && Number.isInteger(item.stress_score))
+          .sort((a, b) => new Date(a.assessed_at) - new Date(b.assessed_at));
+
+        const summary = document.createElement('p');
+        if (comparison?.count > 1) {
+          const older = comparison.previous;
+          const latest = comparison.latest;
+          const contextChange = older.concern_category && latest.concern_category
+            && older.concern_category !== latest.concern_category
+            ? ` The concern context recorded by AI chat changed from "${older.concern_category}" to "${latest.concern_category}"; this is context only and does not explain the score change.`
+            : '';
+          const direction = comparison.trend === 'Lower than previous'
+            ? 'lower than the previous K10'
+            : comparison.trend === 'Higher than previous'
+              ? 'higher than the previous K10'
+              : comparison.trend === 'Fluctuating'
+                ? 'has fluctuated across saved K10 reports'
+                : comparison.trend === 'Unchanged'
+                  ? 'unchanged from the previous K10'
+                  : 'not yet comparable';
+          summary.textContent = `Across ${comparison.count} fixed K10 reports, your latest total is ${latest.stress_score}/50 (${direction}). The latest and previous reports differ by ${comparison.difference > 0 ? '+' : ''}${comparison.difference} points, from ${new Date(older.assessed_at).toLocaleDateString('en-IN')} to ${new Date(latest.assessed_at).toLocaleDateString('en-IN')}. Higher K10 totals indicate greater reported psychological distress; this comparison is not a diagnosis and does not identify a cause.${contextChange}`;
+        } else {
+          summary.textContent = comparison?.count === 1
+            ? 'You have one saved K10 report. A change over time needs at least two comparable K10 reports.'
+            : 'No saved K10 reports are available. Enable saved memory and complete the fixed K10 to begin a history.';
+        }
+        k10Summary.appendChild(summary);
+
+        const recommendationHeading = document.createElement('h4');
+        recommendationHeading.textContent = 'Suggestions based on this comparison';
+        k10Summary.appendChild(recommendationHeading);
+        (progress.k10Recommendations || []).forEach((recommendation) => {
+          const item = document.createElement('p');
+          item.className = 'support-item';
+          item.textContent = recommendation;
+          k10Summary.appendChild(item);
+        });
+        (progress.k10SupportLinks || []).forEach((resource) => {
+          const card = document.createElement('article');
+          card.className = 'info-box';
+          const heading = document.createElement('h4');
+          heading.textContent = resource.label;
+          const detail = document.createElement('p');
+          detail.textContent = resource.detail;
+          const nextStep = document.createElement('p');
+          nextStep.textContent = `Possible next step: ${resource.nextStep}`;
+          const link = document.createElement('a');
+          link.href = resource.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = `Open official source${resource.source ? `: ${resource.source}` : ''}`;
+          card.append(heading, detail, nextStep, link);
+          k10Resources.appendChild(card);
+        });
+        if (!k10Resources.childElementCount) k10Resources.textContent = 'No official service information is available.';
+
+        entries.forEach((entry, index) => {
+          const card = document.createElement('article');
+          card.className = 'info-box';
+          const heading = document.createElement('h4');
+          heading.textContent = `K10 — ${new Date(entry.assessed_at).toLocaleString('en-IN')}`;
+          const detail = document.createElement('p');
+          const previous = entries[index - 1];
+          const change = previous
+            ? `Change since previous: ${entry.stress_score > previous.stress_score ? '+' : ''}${entry.stress_score - previous.stress_score} points.`
+            : 'Starting score; no earlier saved K10 to compare.';
+          detail.textContent = `Score ${entry.stress_score}/50. ${change} AI-chat concern recorded at this time: ${entry.concern_category || 'not recorded'}. K10 measures general distress and does not determine its cause.`;
+          card.append(heading, detail);
+          k10Timeline.appendChild(card);
+        });
+        if (!entries.length) k10Timeline.textContent = 'No saved K10 score timeline yet.';
+
+        const nonK10Comparisons = (progress.assessmentComparisons || [])
+          .filter((item) => item.assessmentType !== 'k10_v1');
+        nonK10Comparisons.forEach((comparisonGroup) => {
+          const card = document.createElement('article');
+          card.className = 'info-box';
+          const heading = document.createElement('h4');
+          heading.textContent = `${comparisonGroup.assessmentType === 'svi_experimental_v1' ? 'Experimental condition-specific screening' : comparisonGroup.assessmentType} — ${comparisonGroup.concernCategory || 'General concern'}`;
+          const detail = document.createElement('p');
+          const firstScore = comparisonGroup.first.stress_score;
+          const latestScore = comparisonGroup.latest.stress_score;
+          detail.textContent = comparisonGroup.count > 1
+            ? `${comparisonGroup.count} comparable reports: ${firstScore} on ${new Date(comparisonGroup.first.assessed_at).toLocaleDateString('en-IN')} to ${latestScore} on ${new Date(comparisonGroup.latest.assessed_at).toLocaleDateString('en-IN')}. Trend: ${comparisonGroup.trend}; change ${comparisonGroup.difference > 0 ? '+' : ''}${comparisonGroup.difference}. This experimental measure is unvalidated and does not establish cause.`
+            : `One report saved (score ${latestScore}); more comparable reports are needed to identify change over time.`;
+          card.append(heading, detail);
+          (comparisonGroup.recommendations || []).forEach((recommendation) => {
+            const item = document.createElement('p');
+            item.className = 'support-item';
+            item.textContent = recommendation;
+            card.appendChild(item);
+          });
+          otherComparisons.appendChild(card);
+        });
+        if (!otherComparisons.childElementCount) otherComparisons.textContent = 'No other comparable assessment reports yet.';
+      }
+
+      async function loadAssessments(useDemoId) {
+        const query = useDemoId && user?.id ? `?userId=${encodeURIComponent(user.id)}` : '';
+        const response = await fetch(`/api/history${query}`);
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.message || 'Unable to load assessments.');
+        assessmentList.replaceChildren();
+        (result.data || []).forEach((item) => {
+          const card = document.createElement('article');
+          card.className = 'info-box';
+          const title = document.createElement('h3');
+          title.textContent = `Assessment — ${new Date(item.date).toLocaleDateString('en-IN')}`;
+          const details = document.createElement('p');
+          if (item.assessment_type === 'k10_v1') {
+            details.textContent = `K10 psychological distress score: ${item.stress_score ?? item.screeningScore ?? 'Not available'} / 50. Higher totals indicate greater reported distress; this is not a diagnosis. Concern context: ${item.concern_category || 'not recorded'}.`;
+          } else if (item.assessment_type === 'svi_experimental_v1') {
+            details.textContent = `Concern: ${item.concern_category || item.problemType || 'Not recorded'}. Experimental condition-specific score: ${item.stress_score ?? item.screeningScore ?? 'Not available'} / 50. Unvalidated and not the K10 or a diagnosis.`;
+          } else if (Number.isInteger(item.mood_score)) {
+            details.textContent = `User-reported mood: ${item.mood_score} / 100. This is a personal check-in, not a clinical measure.`;
+          } else {
+            details.textContent = `Concern: ${item.concern_category || item.problemType || 'Not recorded'}. Score: ${item.stress_score ?? item.screeningScore ?? 'Not available'}.`;
+          }
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'ghost-btn';
+          remove.textContent = 'Delete assessment';
+          remove.addEventListener('click', async () => {
+            const deletion = await fetch(`/api/history/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+            const deleted = await deletion.json();
+            if (!deletion.ok || !deleted.ok) return showNotice(deleted.message || 'Assessment could not be deleted.');
+            await loadAssessments();
+          });
+          card.append(title, details, remove);
+          assessmentList.appendChild(card);
+        });
+        if (!assessmentList.childElementCount) assessmentList.textContent = 'No assessment history yet.';
+      }
+
+      async function loadConversations() {
+        const search = searchInput.value.trim();
+        const response = await fetch(`/api/conversations${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.message || 'Unable to load conversations.');
+        conversationList.replaceChildren();
+        (result.data || []).forEach((conversation) => {
+          const card = document.createElement('article');
+          card.className = 'info-box';
+          const title = document.createElement('h3');
+          title.textContent = conversation.title;
+          const date = document.createElement('p');
+          date.textContent = `Updated ${new Date(conversation.updated_at).toLocaleString()}`;
+          const open = document.createElement('a');
+          open.className = 'primary-btn';
+          open.href = `chat.html?conversation=${encodeURIComponent(conversation.id)}`;
+          open.textContent = 'Resume conversation';
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'ghost-btn';
+          remove.textContent = 'Delete';
+          remove.addEventListener('click', async () => {
+            const deletion = await fetch(`/api/conversations/${encodeURIComponent(conversation.id)}`, { method: 'DELETE' });
+            const deleted = await deletion.json();
+            if (!deletion.ok || !deleted.ok) return showNotice(deleted.message || 'Conversation could not be deleted.');
+            await loadConversations();
+          });
+          card.append(title, date, open, remove);
+          conversationList.appendChild(card);
+        });
+        if (!conversationList.childElementCount) conversationList.textContent = 'No saved conversations found.';
+      }
+
+      let searchTimer;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => loadConversations().catch((error) => showNotice(error.message)), 250);
+      });
+      fetch('/api/health')
+        .then((response) => response.json())
+        .then(async (health) => {
+          if (health.mode !== 'supabase') {
+            conversationList.textContent = 'Persistent conversations are unavailable in demo mode.';
+            searchInput.disabled = true;
+            k10Summary.textContent = 'History comparison requires a configured Supabase account with saved memory enabled.';
+            k10Timeline.textContent = 'Persistent K10 history is unavailable in demo mode.';
+            k10Resources.textContent = 'Official services are shown after a saved-account progress check.';
+            otherComparisons.textContent = 'Persistent report comparisons are unavailable in demo mode.';
+            await loadAssessments(true);
+            return;
+          }
+          const [progressResponse] = await Promise.all([
+            fetch('/api/user/progress'),
+            loadAssessments(false),
+            loadConversations(),
+          ]);
+          const progress = await progressResponse.json();
+          if (!progressResponse.ok || !progress.ok) throw new Error(progress.message || 'Unable to load K10 history comparison.');
+          renderK10Progress(progress);
+        })
+        .catch((error) => showNotice(error.message || 'History could not be loaded.'));
+    </script>
+  </body>
+</html>

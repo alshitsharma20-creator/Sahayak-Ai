@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI | Support Summary</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .svi-hero { display: grid; gap: 14px; margin-bottom: 18px; }
+      .svi-value { font-size: 3rem; font-weight: 700; color: var(--ink, #17202a); }
+      .svi-meter { height: 14px; overflow: hidden; border-radius: 7px; background: #e7ecef; }
+      .svi-meter-fill { height: 100%; width: 0; border-radius: inherit; background: #2c7a7b; transition: width 500ms ease; }
+      .svi-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 18px 0; }
+      .svi-metric { padding: 14px; border: 1px solid #dfe6e8; border-radius: 8px; background: #fff; }
+      .svi-metric strong { display: block; font-size: 1.35rem; margin-top: 5px; }
+      .svi-section { margin-top: 18px; }
+      .svi-disclaimer { padding: 14px; border-left: 4px solid #d39b35; background: #fff7e8; }
+      .svi-empty { padding: 18px; border: 1px dashed #b9c5c8; }
+      @media (max-width: 640px) { .svi-value { font-size: 2.4rem; } }
+    </style>
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="brand-inline sidebar-brand">
+          <div class="brand-mark">S</div>
+          <div><div class="brand-name">SAHAYAKAI</div></div>
+        </div>
+        <nav class="side-nav">
+          <a class="nav-item" href="dashboard.html">🏠 Home</a>
+          <a class="nav-item" href="chat.html">💬 AI Chat</a>
+          <a class="nav-item" href="voice.html">🎤 Voice Assessment</a>
+          <a class="nav-item" href="k10.html">🧠 K10 Assessment</a>
+          <a class="nav-item" href="legal.html">⚖ Legal Guidance</a>
+          <a class="nav-item active" href="results.html">📊 SupportSummary</a>
+          <a class="nav-item" href="history.html">📜 History</a>
+          <a class="nav-item" href="help.html">📞 Helplines</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <header class="top-header dashboard-header">
+          <div><small>Support summary</small><h2>Condition-specific screening summary</h2></div>
+          <a class="secondary-btn" href="dashboard.html">Back to dashboard</a>
+        </header>
+
+        <section class="content-wrap">
+          <div id="empty-result" class="svi-empty hidden">Complete the chat and condition-specific support screening to view your summary.</div>
+          <article id="svi-result" class="info-box">
+            <div class="svi-hero">
+              <div class="muted">EXPERIMENTAL COMBINED SUPPORT INDICATOR</div>
+              <div id="svi-value" class="svi-value">0 / 100</div>
+              <div class="muted">Prototype priority score (unvalidated; not government-rated)</div>
+              <div id="svi-risk" class="result-badge low">LOW</div>
+              <div><strong>Problem type:</strong> <span id="svi-problem-type">Under assessment</span></div>
+              <div class="svi-meter" aria-label="Prototype priority score, not a validated risk measure"><div id="svi-meter-fill" class="svi-meter-fill"></div></div>
+            </div>
+
+            <div class="svi-metrics">
+              <div class="svi-metric"><span>Experimental screening score</span><strong id="metric-screening">Not available</strong></div>
+              <div class="svi-metric"><span>Reported impact band (unvalidated)</span><strong id="metric-screening-band">Not rated</strong></div>
+              <div class="svi-metric"><span>Prototype priority band</span><strong id="metric-svi-band">Not rated</strong></div>
+              <div class="svi-metric"><span>Experimental impact indicator</span><strong id="metric-distress">0 / 100</strong></div>
+              <div class="svi-metric"><span>Trauma Indicator</span><strong id="metric-trauma">0 / 100</strong></div>
+              <div class="svi-metric"><span>Vulnerability</span><strong id="metric-vulnerability">0 / 100</strong></div>
+              <div class="svi-metric"><span>Functioning Impact</span><strong id="metric-functioning">0 / 100</strong></div>
+              <div class="svi-metric"><span>Isolation</span><strong id="metric-isolation">0 / 100</strong></div>
+            </div>
+
+            <div class="svi-section"><p><strong>Prototype support priority:</strong> <span id="svi-explanation">This experimental heuristic combines tailored answers with conversation indicators and immediate safety concerns. Government websites guide support options; they do not validate or change this score.</span></p></div>
+            <div class="svi-section"><h3>Recommendations</h3><div id="svi-recommendations" class="support-list"></div></div>
+            <div class="svi-section"><h3>Relevant legal information</h3><div id="svi-legal" class="support-list"></div></div>
+            <div class="svi-section"><h3>Official support services</h3><div id="svi-links" class="support-links"></div></div>
+            <p class="muted">Official websites provide service information; they do not validate or change the SahayakAI prototype priority score. Check each agency’s current eligibility, jurisdiction, and contact instructions.</p>
+            <p id="svi-disclaimer" class="svi-disclaimer">The tailored questions, score, bands, and prototype priority are experimental and unvalidated. This is not the K10, a clinical assessment, or a validated risk measure.</p>
+          </article>
+        </section>
+      </main>
+    </div>
+    <script src="shared.js"></script>
+    <script>
+      requireAuth();
+      const result = getResultData();
+      const resultNode = document.getElementById('svi-result');
+      const emptyNode = document.getElementById('empty-result');
+      if (!result || typeof result.sviScore !== 'number') {
+        resultNode.classList.add('hidden');
+        emptyNode.classList.remove('hidden');
+      } else {
+        const score = Number(result.sviScore || 0);
+        const risk = String(result.riskCategory || 'LOW').toUpperCase();
+        document.getElementById('svi-value').textContent = `${score.toFixed(2)} / 100`;
+        document.getElementById('svi-problem-type').textContent = result.problemType || 'Emotional distress';
+        const riskNode = document.getElementById('svi-risk');
+        riskNode.textContent = risk;
+        riskNode.className = `result-badge ${risk === 'CRITICAL' || risk === 'HIGH' ? 'high' : ['MODERATE', 'MILD'].includes(risk) ? 'medium' : 'low'}`;
+        document.getElementById('svi-meter-fill').style.width = `${Math.max(0, Math.min(100, score))}%`;
+        document.getElementById('metric-screening').textContent = `${result.screeningScore ?? 'Not available'} / 50`;
+        document.getElementById('metric-screening-band').textContent = result.screeningBand || 'Not rated';
+        document.getElementById('metric-svi-band').textContent = result.sviBand || 'Not rated';
+        document.getElementById('metric-distress').textContent = `${result.distressScore} / 100`;
+        document.getElementById('metric-trauma').textContent = `${result.traumaScore} / 100`;
+        document.getElementById('metric-vulnerability').textContent = `${result.vulnerabilityScore} / 100`;
+        document.getElementById('metric-functioning').textContent = `${result.functioningImpactScore} / 100`;
+        document.getElementById('metric-isolation').textContent = `${result.isolationScore} / 100`;
+        document.getElementById('svi-explanation').textContent = result.explanation || document.getElementById('svi-explanation').textContent;
+        document.getElementById('svi-disclaimer').textContent = result.disclaimer || document.getElementById('svi-disclaimer').textContent;
+        document.getElementById('svi-recommendations').innerHTML = (result.recommendations || []).map((item) => `<div class="support-item">• ${item}</div>`).join('');
+        document.getElementById('svi-legal').innerHTML = (result.legalFrameworks || []).map((item) => `<div class="support-item"><strong>${item.law}</strong><br>${item.relevance}<br>${item.action ? `<strong>Possible next step:</strong> ${item.action}<br>` : ''}${item.url ? `<a href="${item.url}" target="_blank" rel="noreferrer">${item.source || 'Official source'}</a>` : ''}<br><small>${item.disclaimer || ''}</small></div>`).join('') || '<div class="muted">No legal framework was identified from the details provided.</div>';
+        const links = document.getElementById('svi-links');
+        links.replaceChildren();
+        (result.supportLinks || []).forEach((item) => {
+          const card = document.createElement('article');
+          card.className = 'support-item';
+          const heading = document.createElement('h4');
+          heading.textContent = item.label;
+          card.appendChild(heading);
+          if (item.detail) {
+            const detail = document.createElement('p');
+            detail.textContent = item.detail;
+            card.appendChild(detail);
+          }
+          if (item.nextStep) {
+            const nextStep = document.createElement('p');
+            nextStep.textContent = `Possible next step: ${item.nextStep}`;
+            card.appendChild(nextStep);
+          }
+          const link = document.createElement('a');
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = item.url.startsWith('tel:') ? 'Call 112' : `Open official source${item.source ? `: ${item.source}` : ''}`;
+          card.appendChild(link);
+          links.appendChild(card);
+        });
+      }
+    </script>
+  </body>
+</html>

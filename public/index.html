@@ -1,0 +1,441 @@
+c:\Users\alshi\OneDrive\Documents\Desktop\ok89\index.html<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SahayakAI</title>
+    <meta
+      name="description"
+      content="AI-powered first-contact support for victims and complainants."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="landing-page" class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">S</div>
+          <div>
+            <h1>SAHAYAKAI</h1>
+          </div>
+        </div>
+        <nav class="nav-links">
+          <a href="#features">What it does</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#privacy">Privacy</a>
+        </nav>
+        <button class="primary-btn" id="landing-login-btn">Get Started</button>
+      </header>
+
+      <main class="landing-main">
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">AI-powered first-contact support</span>
+            <h2>Your first step toward understanding, safety and support.</h2>
+            <p>
+              A compassionate support assistant for people facing distress,
+              vulnerability, threats, discrimination, fear, and uncertainty.
+            </p>
+            <div class="hero-actions">
+              <a class="primary-btn big" href="login.html">Get Started</a>
+              <a class="secondary-btn big" href="help.html">Emergency Help</a>
+              <a class="ghost-btn big" href="#how-it-works">HowItWorks</a>
+            </div>
+
+            <div class="mini-stats">
+              <div>
+                <strong>AI + NLP</strong>
+                <span>Pattern review</span>
+              </div>
+              <div>
+                <strong>Safety</strong>
+                <span>Immediate checks</span>
+              </div>
+              <div>
+                <strong>Legal</strong>
+                <span>Guidance</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <section class="feature-grid" id="features">
+          <article class="feature-card">
+            <div class="icon">💬</div>
+            <h3>Adaptive support</h3>
+            <p>Guided questions and empathetic responses for first contacts.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🧠</div>
+            <h3>K10 psychological distress screening</h3>
+            <p>Review psychological distress signals with a clear supportive framework.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🎤</div>
+            <h3>Voice input</h3>
+            <p>Speech-to-text and voice feature analysis for supportive triage.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">⚖</div>
+            <h3>Legal information</h3>
+            <p>Helpful legal guidance with a clear disclaimer and official resources.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🌐</div>
+            <h3>Multilingual</h3>
+            <p>Supports English and major Indian languages with flexible expansion.</p>
+          </article>
+          <article class="feature-card accent">
+            <div class="icon">📞</div>
+            <h3>Emergency support</h3>
+            <p>Immediate guidance, safer next steps, and trusted helpline information.</p>
+          </article>
+        </section>
+
+        <section class="info-section" id="how-it-works">
+          <div class="section-heading">
+            <span class="eyebrow">How it works</span>
+            <h3>From first voice or text contact to understanding, safety, and support</h3>
+          </div>
+          <div class="timeline">
+            <div class="step">
+              <span>1</span>
+              <p>Share what happened through chat or voice.</p>
+            </div>
+            <div class="step">
+              <span>2</span>
+              <p>AI-assisted review checks the situation and safety status.</p>
+            </div>
+            <div class="step">
+              <span>3</span>
+              <p>Fixed K10 questions support consistent score comparisons; AI-chat context helps explain what situation was reported.</p>
+            </div>
+            <div class="step">
+              <span>4</span>
+              <p>Users receive practical help and verified resources.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="privacy-box" id="privacy">
+          <h3>Your information matters.</h3>
+          <p>
+            Your information may contain sensitive personal information. Use only the
+            information necessary for obtaining support. This prototype does not replace
+            professional or government services.
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <div id="auth-page" class="auth-screen hidden">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="brand-mark">S</div>
+          <span>SAHAYAKAI</span>
+        </div>
+
+        <div class="auth-toggle">
+          <button class="tab-btn active" data-tab="login">Login</button>
+          <button class="tab-btn" data-tab="register">Create account</button>
+        </div>
+
+        <form id="login-form" class="auth-form active">
+          <label>
+            Email or username
+            <input type="text" name="loginId" placeholder="Enter email or demo username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+          </label>
+          <label class="remember-option">
+            <input type="checkbox" id="remember-me" />
+            <span>Remember me (email or username only)</span>
+          </label>
+          <button type="submit" class="primary-btn full">Login</button>
+        </form>
+
+        <form id="register-form" class="auth-form">
+          <label>
+            Full name
+            <input type="text" name="name" placeholder="Your full name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="Enter your email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="Choose password (8 characters minimum)" autocomplete="new-password" minlength="8" required />
+          </label>
+          <button type="submit" class="primary-btn full">Create account</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="app-shell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand-wrap side-brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <h1>SAHAYAKAI</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-view="home-view">🏠 Home</button>
+          <button class="nav-item" data-view="chat-view">💬 AI Chat</button>
+          <button class="nav-item" data-view="voice-view">🎤 Voice Assessment</button>
+          <button class="nav-item" data-view="k10-view">🧠 K10 Assessment</button>
+          <button class="nav-item" data-view="legal-view">⚖ Legal Guidance</button>
+          <button class="nav-item" data-view="history-view">📜 History</button>
+          <button class="nav-item" data-view="help-view">📞 Helplines</button>
+          <button class="nav-item" data-view="about-view">ℹ About SahayakAI</button>
+        </nav>
+      </aside>
+
+      <main class="content-panel">
+        <header class="dashboard-header">
+          <div>
+            <p class="header-label">Welcome</p>
+            <h2 id="header-user" data-no-translate>User</h2>
+          </div>
+          <div class="header-actions">
+            <label class="language-picker">
+              <span>Language</span>
+              <select id="language-select">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="pa">Punjabi</option>
+                <option value="bn">Bengali</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="kn">Kannada</option>
+                <option value="ml">Malayalam</option>
+                <option value="or">Odia</option>
+                <option value="ur">Urdu</option>
+              </select>
+            </label>
+            <button class="ghost-btn" id="profile-btn">Profile</button>
+            <button class="secondary-btn" id="logout-btn">Logout</button>
+          </div>
+        </header>
+
+        <div class="view active" id="home-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Category</p>
+              <h3 id="selected-category-label">SC</h3>
+            </div>
+            <button class="primary-btn" id="change-category-btn">Change category</button>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card info-card">
+              <span>🧠 K10 Assessment</span>
+              <strong id="summary-screening">Pending</strong>
+            </div>
+            <div class="summary-card info-card">
+              <span>⚖ Legal Guidance</span>
+              <strong id="summary-legal">Ready</strong>
+            </div>
+            <div class="summary-card info-card">
+              <span>🎤 Voice Assessment</span>
+              <strong id="summary-voice">Not started</strong>
+            </div>
+            <div class="summary-card info-card">
+              <span>📞 Emergency Help</span>
+              <strong id="summary-help">Available</strong>
+            </div>
+          </div>
+
+          <div class="status-panel">
+            <h3>Privacy</h3>
+            <p>Saved conversation memory is optional. Turn it on to save chats, assessments, and progress in your private account. Demo mode is for local exploration only and is not private persistent storage; do not enter sensitive information until Supabase is configured.</p>
+            <label class="remember-option">
+              <input type="checkbox" id="spa-memory-consent" disabled />
+              <span>Enable saved memory and history</span>
+            </label>
+            <p id="spa-memory-status" class="muted">Checking settings…</p>
+            <a class="secondary-btn" href="dashboard.html">Manage memory and progress</a>
+          </div>
+        </div>
+
+        <div class="view hidden" id="chat-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">AI Chat</p>
+              <h3>Support conversation</h3>
+            </div>
+            <button class="ghost-btn" id="new-chat-btn" type="button">New conversation</button>
+          </div>
+
+          <div class="chat-box" id="chat-box">
+            <div class="chat-message ai">
+              Hello. I am SahayakAI. I am here to help you understand your situation and find appropriate support.
+            </div>
+            <div class="chat-message ai">
+              Would you like to tell me what happened?
+            </div>
+          </div>
+
+          <p class="muted">Chats are saved only when saved memory is enabled in Privacy on the Home screen.</p>
+          <form id="chat-form" class="chat-form">
+            <input type="text" id="chat-input" placeholder="Type your situation here..." />
+            <button type="submit" class="primary-btn">Send</button>
+          </form>
+        </div>
+
+        <div class="view hidden" id="voice-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Voice Assessment</p>
+              <h3>Microphone-based support intake</h3>
+            </div>
+          </div>
+
+          <div class="voice-controls">
+            <button class="primary-btn" id="start-recording-btn">🎤 StartRecording</button>
+            <button class="secondary-btn" id="stop-recording-btn">⏹ StopRecording</button>
+            <button class="ghost-btn" id="play-recording-btn">🔊 PlayRecording</button>
+            <button class="ghost-btn" id="view-transcript-btn">📝 ViewTranscript</button>
+          </div>
+
+          <div class="voice-logger">
+            <p class="muted">Listening...</p>
+            <textarea id="transcript-output" rows="7" placeholder="Your transcript appears here..."></textarea>
+          </div>
+
+          <div class="voice-analysis">
+            <h4>Prototype Voice Distress Indicator</h4>
+            <p>Prototype voice distress indicator — not a clinical diagnosis.</p>
+            <div class="score-box" id="voice-score-box">Voice recordings and transcripts are not scored or clinically interpreted. For a standardized self-report screen, use the fixed K10 questionnaire; it is not a diagnosis.</div>
+          </div>
+        </div>
+
+        <div class="view hidden" id="k10-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Standardized self-report questionnaire</p>
+              <h3>K10 Psychological Distress Assessment</h3>
+            </div>
+          </div>
+
+          <p>Instructions: Please answer based on how you have felt during the last 30 days. Select one response for every question.</p>
+          <p id="spa-k10-concern" class="muted">The 10 K10 questions and response options stay fixed. Your AI-chat concern is context only and does not change the questions or score.</p>
+          <form id="screening-form" class="k10-form"></form>
+          <button id="spa-k10-submit" type="submit" class="primary-btn" form="screening-form" disabled>Calculate K10 score</button>
+          <div id="screening-result" class="result-panel hidden">
+            <h3>K10 result</h3>
+            <p id="screening-score"></p>
+            <p id="screening-band"></p>
+            <p id="screening-priority" class="muted">Higher totals indicate greater reported psychological distress. This screening result is not a diagnosis.</p>
+            <div id="screening-recommendations" class="support-list"></div>
+            <h4>Optional official support</h4>
+            <div id="screening-official-resources" class="support-list"></div>
+          </div>
+        </div>
+
+        <div class="view hidden" id="legal-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Legal Guidance</p>
+              <h3>Possible legal frameworks</h3>
+            </div>
+          </div>
+          <div id="legal-results" class="legal-results"></div>
+        </div>
+
+        <div class="view hidden" id="history-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">History</p>
+              <h3>My assessment history</h3>
+            </div>
+          </div>
+          <div class="info-box">
+            <h4>Saved conversations</h4>
+            <div id="saved-conversations-list" class="support-list"></div>
+          </div>
+          <div id="spa-k10-comparison" class="info-box">K10 comparisons appear after comparable reports are saved.</div>
+          <div id="spa-k10-official-resources" class="support-list"></div>
+          <div id="spa-k10-timeline" class="history-list"></div>
+          <h4>Other comparable reports</h4>
+          <div id="spa-other-comparisons" class="history-list"></div>
+          <div id="history-list" class="history-list"></div>
+        </div>
+
+        <div class="view hidden" id="help-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Help&Emergency</p>
+              <h3>Support and helpline resources</h3>
+            </div>
+          </div>
+          <div id="helpline-content" class="helpline-box"></div>
+        </div>
+
+        <div class="view hidden" id="about-view">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">About SahayakAI</p>
+              <h3>AI-assisted first-contact support</h3>
+            </div>
+          </div>
+          <div class="about-card">
+            <p>
+              SahayakAI is a first-contact support prototype designed to help users understand their situation,
+              evaluate safety, review emotional distress, access legal information, and connect with support resources.
+            </p>
+            <p>
+              It does not diagnose mental illness, determine guilt, or replace official legal or medical processes.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="category-page" class="category-screen hidden">
+      <div class="category-card">
+        <div class="section-heading center">
+          <span class="eyebrow">Select your category</span>
+          <h3>Select the category that best represents your situation.</h3>
+        </div>
+
+        <div class="category-grid">
+          <button class="category-option" data-category="SC">
+            <span>📘</span>
+            <strong>SC</strong>
+          </button>
+          <button class="category-option" data-category="ST">
+            <span>🌿</span>
+            <strong>ST</strong>
+          </button>
+          <button class="category-option" data-category="OBC">
+            <span>🧭</span>
+            <strong>OBC</strong>
+          </button>
+          <button class="category-option" data-category="BC">
+            <span>🏛</span>
+            <strong>BC</strong>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="shared.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
